@@ -48,7 +48,7 @@ from diffusers import AutoencoderKL, DDPMScheduler, StableDiffusionPipeline, UNe
 from diffusers.optimization import get_scheduler
 from diffusers.utils import check_min_version, deprecate, is_wandb_available, make_image_grid
 from diffusers.utils.import_utils import is_xformers_available
-from pudb.forked import set_trace
+from utils.iter_dict_batch import iter_dict_batch
 
 
 if is_wandb_available():
@@ -771,7 +771,23 @@ def main():
     if args.train_method == 'dpo':
         print("Ignoring image_column variable, reading from jpg_0 and jpg_1")
         def preprocess_train(examples):
-            set_trace()
+            combined_pixel_values = []
+            for sample in iter_dict_batch(examples):
+                if sample['human_preference'][0]==0:
+                    chosen = sample['image'][1].convert("RGB")
+                    rejected = sample['image'][0].convert("RGB")
+                else:
+                    chosen = sample['image'][0].convert("RGB")
+                    rejected = sample['image'][1].convert("RGB")
+                chosen, rejected = train_transforms(chosen), train_transforms(rejected)
+                combined_pixel_value = torch.cat((chosen, rejected), dim=0)
+                combined_pixel_values.append(combined_pixel_value)
+
+            examples['pixel_values'] = combined_pixel_values
+            if not args.sdxl: examples["input_ids"] = tokenize_captions(examples)
+            return examples
+
+        def preprocess_train_old(examples):
             all_pixel_values = []
             for col_name in ['jpg_0', 'jpg_1']:
                 images = [Image.open(io.BytesIO(im_bytes)).convert("RGB")
@@ -797,7 +813,7 @@ def main():
             return_d =  {"pixel_values": pixel_values}
             # SDXL takes raw prompts
             if args.sdxl:
-                return_d["caption"] = [example["caption"] for example in examples]
+                return_d["caption"] = [example[args.caption_column] for example in examples]
             else:
                 return_d["input_ids"] = torch.stack([example["input_ids"] for example in examples])
 
