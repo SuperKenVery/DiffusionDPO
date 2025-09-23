@@ -367,6 +367,8 @@ def parse_args():
 
     parser.add_argument("--ds_start_idx", type=int, help="Start from this index of dataset", default=None)
     parser.add_argument("--ds_end_idx", type=int, help="Stop at this index of dataset", default=None)
+    parser.add_argument("--alpha_control", action="store_true", help="Use additional alpha to control KL divergence")
+    parser.add_argument("--alpha_epsilon", type=float, help="Epsilon for alpha control", default=1e-6)
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -773,8 +775,6 @@ def main():
     #### START PREPROCESSING/COLLATION ####
     if args.train_method == 'dpo':
         print("Ignoring image_column variable, reading from jpg_0 and jpg_1")
-        from get_image_rewards.utils import get_reward_ds_path
-        preference_data = load_from_disk(get_reward_ds_path(args.dataset_name))
         def preprocess_train(examples):
             combined_pixel_values = []
             for sample in iter_dict_batch(examples):
@@ -793,45 +793,6 @@ def main():
             # examples[]
             return examples
 
-        def map_train(example, index):
-            sample = example
-
-            if sample['human_preference'][0]==0:
-                chosen = sample['image'][1].convert("RGB")
-                rejected = sample['image'][0].convert("RGB")
-            else:
-                chosen = sample['image'][0].convert("RGB")
-                rejected = sample['image'][1].convert("RGB")
-            chosen, rejected = train_transforms(chosen), train_transforms(rejected)
-            combined_pixel_value = torch.cat((chosen, rejected), dim=0)
-
-            example['pixel_values'] = combined_pixel_value
-            if not args.sdxl: example["input_ids"] = tokenize_captions(example)
-            example['chosen_reward'] = preference_data['chosen_score'][index]
-            example['rejected_reward'] = preference_data['rejected_score'][index]
-            assert example['prompt'] == preference_data['prompt'][index]
-            return example
-
-        def preprocess_train_old(examples):
-            all_pixel_values = []
-            for col_name in ['jpg_0', 'jpg_1']:
-                images = [Image.open(io.BytesIO(im_bytes)).convert("RGB")
-                            for im_bytes in examples[col_name]]
-                pixel_values = [train_transforms(image) for image in images]
-                all_pixel_values.append(pixel_values)
-            # Double on channel dim, jpg_y then jpg_w
-            im_tup_iterator = zip(*all_pixel_values)
-            combined_pixel_values = []
-            for im_tup, label_0 in zip(im_tup_iterator, examples['label_0']):
-                if label_0==0 and (not args.choice_model): # don't want to flip things if using choice_model for AI feedback
-                    im_tup = im_tup[::-1]
-                combined_im = torch.cat(im_tup, dim=0) # no batch dim
-                combined_pixel_values.append(combined_im)
-            examples["pixel_values"] = combined_pixel_values
-            # SDXL takes raw prompts
-            if not args.sdxl: examples["input_ids"] = tokenize_captions(examples)
-            return examples
-
         def collate_fn(examples):
             pixel_values = torch.stack([example["pixel_values"] for example in examples])
             pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
@@ -848,6 +809,9 @@ def main():
                     return_d[k] = [Image.open(io.BytesIO( example[k])).convert("RGB")
                                    for example in examples]
                 return_d["caption"] = [example["caption"] for example in examples]
+
+            return_d["chosen_score"] = torch.stack([example["chosen_score"] for example in examples])
+            return_d["rejected_score"] = torch.stack([example["rejected_score"] for example in examples])
             return return_d
 
         if args.choice_model:
@@ -869,7 +833,6 @@ def main():
                 assert len(batch['caption'])==1 # Can switch to iteration but not needed for nwo
                 return do_flip(batch['jpg_0'][0], batch['jpg_1'][0], batch['caption'][0])
     elif args.train_method == 'sft':
-        preference_data = None
         def preprocess_train(examples):
             if 'pickapic' in args.dataset_name:
                 images = []
@@ -924,8 +887,9 @@ def main():
             dataset[args.split] = dataset[args.split].select(range(args.ds_start_idx, args.ds_end_idx))
         # Set the training transforms
         train_dataset = dataset[args.split]
-        if args.train_method=="dpo":
-            assert preference_data
+        if args.train_method=="dpo" and args.alpha_control:
+            from get_image_rewards.utils import get_reward_ds_path
+            preference_data = load_from_disk(get_reward_ds_path(args.dataset_name))
             assert train_dataset[0]['prompt']==preference_data[0]['prompt']
             preference_data = preference_data.select_columns(["chosen_score", "rejected_score"])
             train_dataset = concatenate_datasets([train_dataset, preference_data], axis=1)
@@ -1195,10 +1159,19 @@ def main():
                         ref_diff = ref_losses_w - ref_losses_l
                         raw_ref_loss = ref_losses.mean()
 
-                    scale_term = -0.5 * args.beta_dpo
+
+                    if args.alpha_control:
+                        reward_w, reward_l = batch['chosen_score'], batch['rejected_score']
+                        alpha_raw = ( (torch.log(reward_w) - torch.log(reward_l)) - (ref_losses_w - ref_losses_l) )
+                        alpha = F.relu(alpha_raw) + args.alpha_epsilon
+                    else:
+                        alpha = torch.tensor(1.0)
+
+                    scale_term = -0.5 * (1/alpha) * args.beta_dpo
                     inside_term = scale_term * (model_diff - ref_diff)
                     implicit_acc = (inside_term > 0).sum().float() / inside_term.size(0)
-                    loss = -1 * F.logsigmoid(inside_term).mean()
+
+                    loss = -1 * (F.logsigmoid(inside_term) + torch.log(alpha)).mean()
                 #### END LOSS COMPUTATION ###
 
                 # Gather the losses across all processes for logging

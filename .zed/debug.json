@@ -37,12 +37,12 @@
             "--sdxl",
             "--resolution=512",
             "--proportion_empty_prompts=0",
-            "--output_dir=reproduce-1",
+            "--output_dir=2-debug",
             "--caption_column=prompt",
             "--image_column=image",
             "--ds_start_idx=200000",
-            // "--ds_end_idx=210000"
-            "--ds_end_idx=20100"
+            "--ds_end_idx=210000"
+            // "--ds_end_idx=200100"
         ],
         "autoReload": {
             "enable": true

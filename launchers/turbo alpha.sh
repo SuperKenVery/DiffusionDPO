@@ -19,7 +19,8 @@ accelerate launch train.py \
   --checkpointing_steps 200 \
   --beta_dpo 5000 \
    --sdxl --resolution 512 --proportion_empty_prompts 0 \
-  --output_dir="reproduce-2" \
+  --output_dir="improve-1" \
+  --alpha_control \
   --caption_column=prompt \
   --image_column=image \
   --ds_start_idx=200000 \
