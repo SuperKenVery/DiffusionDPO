@@ -15,7 +15,8 @@
             // "DATASET_NAME": "ymhao/HPDv2",
             "all_proxy": "http://172.31.1.128:12798",
             "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
-            "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt"
+            "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+            "_TYPER_STANDARD_TRACEBACK": "1"
         },
         "args": [
             "launch",
@@ -38,12 +39,34 @@
             "--proportion_empty_prompts=0",
             "--output_dir=reproduce-1",
             "--caption_column=prompt",
-            "--image_column=image"
+            "--image_column=image",
+            "--ds_start_idx=200000",
+            // "--ds_end_idx=210000"
+            "--ds_end_idx=20100"
         ],
         "autoReload": {
             "enable": true
         },
         "jinja": true,
         "justMyCode": true
+    },
+    {
+        "label": "Generate reward values",
+        "module": "get_image_rewards.gen_reward_value",
+        "cwd": "$ZED_WORKTREE_ROOT",
+        "args": ["ymhao/HPDv2"],
+        "adapter": "Debugpy",
+        "request": "launch",
+        "env": {
+            "_TYPER_STANDARD_TRACEBACK": "1"
+        }
+    },
+    {
+        "label": "test load train data",
+        "program": "${ZED_WORKTREE_ROOT}/test.py",
+        "cwd": "${ZED_WORKTREE_ROOT}",
+        "adapter": "Debugpy",
+        "request": "launch",
+        "justMyCode": false
     }
 ]

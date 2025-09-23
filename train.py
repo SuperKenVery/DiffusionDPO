@@ -35,7 +35,7 @@ from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.state import AcceleratorState
 from accelerate.utils import ProjectConfiguration, set_seed
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from huggingface_hub import create_repo, upload_folder
 from packaging import version
 from torchvision import transforms
@@ -364,6 +364,9 @@ def parse_args():
     parser.add_argument(
         "--dreamlike_pairs_only", action="store_true", help="Only train on pairs where both generations are from dreamlike"
     )
+
+    parser.add_argument("--ds_start_idx", type=int, help="Start from this index of dataset", default=None)
+    parser.add_argument("--ds_end_idx", type=int, help="Stop at this index of dataset", default=None)
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -770,6 +773,8 @@ def main():
     #### START PREPROCESSING/COLLATION ####
     if args.train_method == 'dpo':
         print("Ignoring image_column variable, reading from jpg_0 and jpg_1")
+        from get_image_rewards.utils import get_reward_ds_path
+        preference_data = load_from_disk(get_reward_ds_path(args.dataset_name))
         def preprocess_train(examples):
             combined_pixel_values = []
             for sample in iter_dict_batch(examples):
@@ -785,7 +790,27 @@ def main():
 
             examples['pixel_values'] = combined_pixel_values
             if not args.sdxl: examples["input_ids"] = tokenize_captions(examples)
+            # examples[]
             return examples
+
+        def map_train(example, index):
+            sample = example
+
+            if sample['human_preference'][0]==0:
+                chosen = sample['image'][1].convert("RGB")
+                rejected = sample['image'][0].convert("RGB")
+            else:
+                chosen = sample['image'][0].convert("RGB")
+                rejected = sample['image'][1].convert("RGB")
+            chosen, rejected = train_transforms(chosen), train_transforms(rejected)
+            combined_pixel_value = torch.cat((chosen, rejected), dim=0)
+
+            example['pixel_values'] = combined_pixel_value
+            if not args.sdxl: example["input_ids"] = tokenize_captions(example)
+            example['chosen_reward'] = preference_data['chosen_score'][index]
+            example['rejected_reward'] = preference_data['rejected_score'][index]
+            assert example['prompt'] == preference_data['prompt'][index]
+            return example
 
         def preprocess_train_old(examples):
             all_pixel_values = []
@@ -892,8 +917,12 @@ def main():
 
         if args.max_train_samples is not None:
             dataset[args.split] = dataset[args.split].shuffle(seed=args.seed).select(range(args.max_train_samples))
+        if args.ds_start_idx or args.ds_end_idx:
+            dataset[args.split] = dataset[args.split].select(range(args.ds_start_idx, args.ds_end_idx))
         # Set the training transforms
-        train_dataset = dataset[args.split].with_transform(preprocess_train)
+        # train_dataset = dataset[args.split].with_transform(preprocess_train)
+        train_dataset = dataset[args.split].map(map_train, with_indices=True)
+        train_dataset.set_format(type="torch", columns=["pixel_values"], output_all_columns=True)
 
     # DataLoaders creation:
     train_dataloader = torch.utils.data.DataLoader(

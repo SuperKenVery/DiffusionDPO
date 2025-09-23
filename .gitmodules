@@ -1,0 +1,3 @@
+[submodule "HPSv2"]
+	path = HPSv2
+	url = git@github.com:callmewhy/HPSv2.git

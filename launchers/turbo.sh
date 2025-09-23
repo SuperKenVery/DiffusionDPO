@@ -21,4 +21,6 @@ accelerate launch train.py \
    --sdxl --resolution 512 --proportion_empty_prompts 0 \
   --output_dir="reproduce-1" \
   --caption_column=prompt \
-  --image_column=image
+  --image_column=image \
+  --ds_start_idx=200000 \
+  --ds_end_idx=210000

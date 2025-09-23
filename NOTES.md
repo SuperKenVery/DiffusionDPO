@@ -1,3 +1,7 @@
+# This branch
+
+This adds alpha control for fine-control of KL divergence.
+
 # Datasets
 HPDv2 train: ymhao/HPDv2
 HPDv2 test: zhwang/HPDv2

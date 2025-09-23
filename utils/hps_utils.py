@@ -1,5 +1,5 @@
 import hpsv2
-import os 
+import os
 root_path = "/export/share/bwallace/hps/"
 import requests
 from clint.textui import progress
@@ -7,7 +7,7 @@ from PIL import Image
 import torch
 
 from .open_clip import create_model_and_transforms, get_tokenizer
-from .tokenizer_hps import HFTokenizer 
+from .tokenizer_hps import HFTokenizer
 
 
 HF_HUB_PREFIX = 'hf-hub:'
@@ -22,9 +22,9 @@ HF_HUB_PREFIX = 'hf-hub:'
 
 
 class Selector():
-    
+
     def __init__(self, device):
-        self.device = device 
+        self.device = device
         model, preprocess_train, self.preprocess_val = create_model_and_transforms(
             'ViT-H-14',
             'laion2B-s32B-b79K',
@@ -55,7 +55,7 @@ class Selector():
             r = requests.get(url, stream=True)
             with open(os.path.join(root_path, 'HPS_v2_compressed.pt'), 'wb') as HPSv2:
                 total_length = int(r.headers.get('content-length'))
-                for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1): 
+                for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1):
                     if chunk:
                         HPSv2.write(chunk)
                         HPSv2.flush()

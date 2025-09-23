@@ -20,13 +20,14 @@ tensorboard = "*"
 jinja2 = "*"
 bitsandbytes = "*"
 xformers = "==0.0.22"
-hpsv2x = "*"
+hpsv2 = { path = "./HPSv2", editable=true }
 openai-clip = "==1.0.1"
 numpy = "<2"
 huggingface_hub = "<0.26.0"
 pysocks = ">=1.7.1, <2"
 
-pudb = "*"
+typer = "*"
+platformdirs = ">=4.4.0, <5"
 
 [system-requirements]
 cuda = "12"
