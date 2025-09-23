@@ -1024,6 +1024,7 @@ def main():
         unet.train()
         train_loss = 0.0
         implicit_acc_accumulated = 0.0
+        reversed_acc_accumulated = 0.0
         for step, batch in enumerate(train_dataloader):
             # Skip steps until we reach the resumed step
             if args.resume_from_checkpoint and epoch == first_epoch and step < resume_step and (not args.hard_skip_resume):
@@ -1166,11 +1167,12 @@ def main():
                         alpha_raw = ( (torch.log(reward_w) - torch.log(reward_l)) - (ref_losses_w - ref_losses_l) )
                         alpha = F.relu(alpha_raw) + args.alpha_epsilon
                     else:
-                        alpha = torch.tensor(1.0)
+                        alpha = torch.tensor(1.0).to(device=model_diff.device)
 
                     scale_term = -0.5 * (1/alpha) * args.beta_dpo
                     inside_term = scale_term * (model_diff - ref_diff)
                     implicit_acc = (inside_term > 0).sum().float() / inside_term.size(0)
+                    reversed_acc = (inside_term < 0).sum().float() / inside_term.size(0)
 
                     loss = -1 * (F.logsigmoid(inside_term) + torch.log(alpha)).mean()
                 #### END LOSS COMPUTATION ###
@@ -1185,7 +1187,9 @@ def main():
                     avg_model_mse = accelerator.gather(raw_model_loss.repeat(args.train_batch_size)).mean().item()
                     avg_ref_mse = accelerator.gather(raw_ref_loss.repeat(args.train_batch_size)).mean().item()
                     avg_acc = accelerator.gather(implicit_acc).mean().item()
+                    rev_acc = accelerator.gather(reversed_acc).mean().item()
                     implicit_acc_accumulated += avg_acc / args.gradient_accumulation_steps
+                    reversed_acc_accumulated += rev_acc / args.gradient_accumulation_steps
 
                 # Backpropagate
                 accelerator.backward(loss)
@@ -1205,14 +1209,19 @@ def main():
                     accelerator.log({"model_mse_unaccumulated": avg_model_mse}, step=global_step)
                     accelerator.log({"ref_mse_unaccumulated": avg_ref_mse}, step=global_step)
                     accelerator.log({"implicit_acc_accumulated": implicit_acc_accumulated}, step=global_step)
+                    accelerator.log({"reversed_acc_accumulated": reversed_acc_accumulated}, step=global_step)
                 train_loss = 0.0
                 implicit_acc_accumulated = 0.0
+                reversed_acc_accumulated = 0.0
 
                 if global_step % args.checkpointing_steps == 0:
                     if accelerator.is_main_process:
                         save_path = os.path.join(args.output_dir, f"checkpoint-{global_step}")
                         accelerator.save_state(save_path)
-                        logger.info(f"Saved state to {save_path}")
+                        prev_saved = os.path.join(args.output_dir, f"checkpoint-{global_step - args.checkpointing_steps}")
+                        if os.path.isdir(prev_saved):
+                            shutil.rmtree(prev_saved)
+                        logger.info(f"Saved state to {save_path}, removed old {prev_saved} if exist")
                         logger.info("Pretty sure saving/loading is fixed but proceed cautiously")
 
             logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}

@@ -4,3 +4,5 @@
 __pycache__/
 
 /annotated_rewards/
+trainings/*/checkpoint*/
+*.safetensors
