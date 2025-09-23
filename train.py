@@ -810,8 +810,9 @@ def main():
                                    for example in examples]
                 return_d["caption"] = [example["caption"] for example in examples]
 
-            return_d["chosen_score"] = torch.stack([example["chosen_score"] for example in examples])
-            return_d["rejected_score"] = torch.stack([example["rejected_score"] for example in examples])
+            if args.alpha_control:
+                return_d["chosen_score"] = torch.tensor([example["chosen_score"] for example in examples])
+                return_d["rejected_score"] = torch.tensor([example["rejected_score"] for example in examples])
             return return_d
 
         if args.choice_model:
