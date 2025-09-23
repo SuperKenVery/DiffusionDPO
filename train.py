@@ -35,7 +35,7 @@ from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.state import AcceleratorState
 from accelerate.utils import ProjectConfiguration, set_seed
-from datasets import load_dataset, load_from_disk
+from datasets import load_dataset, load_from_disk, concatenate_datasets
 from huggingface_hub import create_repo, upload_folder
 from packaging import version
 from torchvision import transforms
@@ -869,6 +869,7 @@ def main():
                 assert len(batch['caption'])==1 # Can switch to iteration but not needed for nwo
                 return do_flip(batch['jpg_0'][0], batch['jpg_1'][0], batch['caption'][0])
     elif args.train_method == 'sft':
+        preference_data = None
         def preprocess_train(examples):
             if 'pickapic' in args.dataset_name:
                 images = []
@@ -892,6 +893,8 @@ def main():
             else:
                 return_d["input_ids"] = torch.stack([example["input_ids"] for example in examples])
             return return_d
+    else:
+        assert False, f"Train method should be sft or dpo, but got {args.train_method}"
     #### END PREPROCESSING/COLLATION ####
 
     ### DATASET #####
@@ -920,9 +923,15 @@ def main():
         if args.ds_start_idx or args.ds_end_idx:
             dataset[args.split] = dataset[args.split].select(range(args.ds_start_idx, args.ds_end_idx))
         # Set the training transforms
-        # train_dataset = dataset[args.split].with_transform(preprocess_train)
-        train_dataset = dataset[args.split].map(map_train, with_indices=True)
-        train_dataset.set_format(type="torch", columns=["pixel_values"], output_all_columns=True)
+        train_dataset = dataset[args.split]
+        if args.train_method=="dpo":
+            assert preference_data
+            assert train_dataset[0]['prompt']==preference_data[0]['prompt']
+            preference_data = preference_data.select_columns(["chosen_score", "rejected_score"])
+            train_dataset = concatenate_datasets([train_dataset, preference_data], axis=1)
+        train_dataset = train_dataset.with_transform(preprocess_train)
+        # train_dataset = dataset[args.split].map(map_train, with_indices=True)
+        # train_dataset.set_format(type="torch", columns=["pixel_values"], output_all_columns=True)
 
     # DataLoaders creation:
     train_dataloader = torch.utils.data.DataLoader(
