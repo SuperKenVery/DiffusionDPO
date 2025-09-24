@@ -16,10 +16,10 @@ accelerate launch train.py \
   --max_train_steps=2000 \
   --lr_scheduler="constant_with_warmup" --lr_warmup_steps=200 \
   --learning_rate=1e-8 --scale_lr \
-  --checkpointing_steps 5 \
+  --checkpointing_steps 50 \
   --beta_dpo 5000 \
    --sdxl --resolution 512 --proportion_empty_prompts 0 \
-  --output_dir="trainings/reproduce-2" \
+  --output_dir="trainings/reproduce-3-rev-accuracy" \
   --caption_column=prompt \
   --image_column=image \
   --ds_start_idx=200000 \

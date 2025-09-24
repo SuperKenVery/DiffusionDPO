@@ -1174,7 +1174,7 @@ def main():
                     implicit_acc = (inside_term > 0).sum().float() / inside_term.size(0)
                     reversed_acc = (inside_term < 0).sum().float() / inside_term.size(0)
 
-                    loss = -1 * (F.logsigmoid(inside_term) + torch.log(alpha)).mean()
+                    loss = -1 * (F.logsigmoid(inside_term) * alpha).mean()
                 #### END LOSS COMPUTATION ###
 
                 # Gather the losses across all processes for logging
