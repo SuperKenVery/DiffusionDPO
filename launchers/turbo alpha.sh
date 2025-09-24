@@ -20,7 +20,7 @@ accelerate launch --main_process_port 29600 \
   --checkpointing_steps 50 \
   --beta_dpo 5000 \
    --sdxl --resolution 512 --proportion_empty_prompts 0 \
-  --output_dir="trainings/improve-3" \
+  --output_dir="trainings/improve-4-alpha-outside-log" \
   --alpha_control \
   --caption_column=prompt \
   --image_column=image \
