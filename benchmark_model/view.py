@@ -1,5 +1,5 @@
 import typer
-from diffusers import AutoPipelineForText2Image
+from diffusers import DiffusionPipeline
 from datasets import load_dataset
 from tqdm import tqdm
 import hpsv2
@@ -21,11 +21,9 @@ def view(
     prompts = ds["prompt"]
     os.makedirs("view", exist_ok=True)
     for model in tqdm(models):
-        pipe = AutoPipelineForText2Image.from_pretrained(model).to("cuda")
-        images = pipe(
-            prompts,
-            num_inference_steps=4,
-        ).images
+        pipe = DiffusionPipeline.from_pretrained(model).to("cuda")
+        pipe.set_progress_bar_config(disable=True)
+        images = pipe(prompts).images
         for i, image in enumerate(images):
             model_name = model.replace("/", "-")
             image.save(f"view/{model_name}-{i}.png")

@@ -1,5 +1,5 @@
 import typer
-from diffusers import AutoPipelineForText2Image
+from diffusers import DiffusionPipeline
 from datasets import load_dataset
 from tqdm import trange
 import hpsv2
@@ -15,7 +15,7 @@ def benchmark_one_model(
     ds_samples: int = 100,
     batch_size: int = 8,
 ):
-    model = AutoPipelineForText2Image.from_pretrained(model_path).to("cuda")
+    model = DiffusionPipeline.from_pretrained(model_path).to("cuda")
     model.set_progress_bar_config(disable=True)
     ds = load_dataset(dataset)[ds_split].select(range(ds_samples))
 
@@ -24,11 +24,7 @@ def benchmark_one_model(
     scores = []
     for i in trange(0, len(prompts), batch_size, desc=f"Evaluating {model_path}"):
         chunk_prompts = prompts[i:i + batch_size]
-        chunk_images = model(
-            chunk_prompts,
-            num_inference_steps=4,
-            output_type="pil"  # Ensure we get PIL Images
-        ).images  # This returns a list of PIL.Image.Image objects
+        chunk_images = model(chunk_prompts, output_type="pil").images  # This returns a list of PIL.Image.Image objects
 
         chunk_scores = hpsv2.score(chunk_images, chunk_prompts, hps_version="v2.0")
         scores.extend(chunk_scores)
