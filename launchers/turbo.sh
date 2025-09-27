@@ -19,8 +19,9 @@ accelerate launch train.py \
   --checkpointing_steps 50 \
   --beta_dpo 5000 \
    --sdxl --resolution 512 --proportion_empty_prompts 0 \
-  --output_dir="trainings/reproduce-3-rev-accuracy" \
+  --output_dir="trainings/reproduce-4-filter-bad-pairs" \
   --caption_column=prompt \
   --image_column=image \
   --ds_start_idx=200000 \
-  --ds_end_idx=210000
+  --ds_end_idx=210000 \
+  --filter_bad_pairs

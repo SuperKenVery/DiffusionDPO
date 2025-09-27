@@ -17,12 +17,13 @@ accelerate launch --main_process_port 29600 \
   --max_train_steps=2000 \
   --lr_scheduler="constant_with_warmup" --lr_warmup_steps=200 \
   --learning_rate=1e-8 --scale_lr \
-  --checkpointing_steps 50 \
+  --checkpointing_steps 200 \
   --beta_dpo 5000 \
    --sdxl --resolution 512 --proportion_empty_prompts 0 \
-  --output_dir="trainings/improve-4-alpha-outside-log" \
+  --output_dir="trainings/improve-5-filter-bad-pairs" \
   --alpha_control \
   --caption_column=prompt \
   --image_column=image \
   --ds_start_idx=200000 \
-  --ds_end_idx=210000
+  --ds_end_idx=210000 \
+  --filter_bad_pairs

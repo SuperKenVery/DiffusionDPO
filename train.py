@@ -369,6 +369,7 @@ def parse_args():
     parser.add_argument("--ds_end_idx", type=int, help="Stop at this index of dataset", default=None)
     parser.add_argument("--alpha_control", action="store_true", help="Use additional alpha to control KL divergence")
     parser.add_argument("--alpha_epsilon", type=float, help="Epsilon for alpha control", default=1e-6)
+    parser.add_argument("--filter_bad_pairs", action="store_true", help="Skip pairs where human preference and reward model preference is inverted")
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))
@@ -888,12 +889,12 @@ def main():
             dataset[args.split] = dataset[args.split].select(range(args.ds_start_idx, args.ds_end_idx))
         # Set the training transforms
         train_dataset = dataset[args.split]
-        if args.train_method=="dpo" and args.alpha_control:
+        if args.train_method=="dpo" and (args.alpha_control or args.filter_bad_pairs):
             from get_image_rewards.utils import get_reward_ds_path
             preference_data = load_from_disk(get_reward_ds_path(args.dataset_name))
             assert train_dataset[0]['prompt']==preference_data[0]['prompt']
             preference_data = preference_data.select_columns(["chosen_score", "rejected_score"])
-            train_dataset = concatenate_datasets([train_dataset, preference_data], axis=1)
+            train_dataset = concatenate_datasets([train_dataset, preference_data], axis=1).filter(lambda sample: sample['chosen_score']>sample['rejected_score'])
         train_dataset = train_dataset.with_transform(preprocess_train)
         # train_dataset = dataset[args.split].map(map_train, with_indices=True)
         # train_dataset.set_format(type="torch", columns=["pixel_values"], output_all_columns=True)
