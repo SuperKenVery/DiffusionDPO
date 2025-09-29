@@ -791,7 +791,6 @@ def main():
 
             examples['pixel_values'] = combined_pixel_values
             if not args.sdxl: examples["input_ids"] = tokenize_captions(examples)
-            # examples[]
             return examples
 
         def collate_fn(examples):

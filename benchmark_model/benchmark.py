@@ -10,16 +10,13 @@ def extract_prompt(examples):
 
 def benchmark_one_model(
     model_path: str,
-    dataset: str = "ymhao/HPDv2",
-    ds_split: str = "test",
-    ds_samples: int = 100,
+    dataset,
     batch_size: int = 8,
 ):
     model = DiffusionPipeline.from_pretrained(model_path).to("cuda")
     model.set_progress_bar_config(disable=True)
-    ds = load_dataset(dataset)[ds_split].select(range(ds_samples))
 
-    prompts = [sample['prompt'] for sample in ds]
+    prompts = [sample['prompt'] for sample in dataset]
 
     scores = []
     for i in trange(0, len(prompts), batch_size, desc=f"Evaluating {model_path}"):
@@ -39,9 +36,10 @@ def benchmark(
     ds_samples: Optional[int] = 100,
     batch_size: Optional[int] = 8,
 ):
+    ds = load_dataset(dataset)[ds_split].select(range(ds_samples))
     scores = {}
     for model in models:
-        scores[model] = benchmark_one_model(model, dataset, ds_split, ds_samples, batch_size)
+        scores[model] = benchmark_one_model(model, ds, batch_size)
 
     print("=== Scores ===")
     for model in models:
