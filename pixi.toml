@@ -1,0 +1,32 @@
+[workspace]
+channels = ["conda-forge"]
+name = "DiffusionDPO"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.10.*"
+
+[pypi-dependencies]
+accelerate = "==0.20.2"
+diffusers = "==0.20.0"
+torchvision = "*"
+transformers = "==4.30.2"
+datasets = "<3.7.0"
+ftfy = "*"
+tensorboard = "*"
+jinja2 = "*"
+bitsandbytes = "*"
+xformers = "==0.0.22"
+hpsv2x = "*"
+openai-clip = "==1.0.1"
+numpy = "<2"
+huggingface_hub = "<0.26.0"
+pysocks = ">=1.7.1, <2"
+
+pudb = "*"
+
+[system-requirements]
+cuda = "12"
