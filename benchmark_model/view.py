@@ -24,8 +24,9 @@ def view(
         pipe = DiffusionPipeline.from_pretrained(model).to("cuda")
         pipe.set_progress_bar_config(disable=True)
         images = pipe(prompts).images
+
+        model_name = model.replace("/", "-")
         for i, image in enumerate(images):
-            model_name = model.replace("/", "-")
             image.save(f"view/{model_name}-{i}.png")
 
 if __name__ == "__main__":

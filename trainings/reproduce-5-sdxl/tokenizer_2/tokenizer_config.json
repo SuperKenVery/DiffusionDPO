@@ -1,23 +1,5 @@
 {
   "add_prefix_space": false,
-  "added_tokens_decoder": {
-    "49406": {
-      "content": "<|startoftext|>",
-      "lstrip": false,
-      "normalized": true,
-      "rstrip": false,
-      "single_word": false,
-      "special": true
-    },
-    "49407": {
-      "content": "<|endoftext|>",
-      "lstrip": false,
-      "normalized": true,
-      "rstrip": false,
-      "single_word": false,
-      "special": true
-    }
-  },
   "bos_token": {
     "__type": "AddedToken",
     "content": "<|startoftext|>",
@@ -38,7 +20,7 @@
   },
   "errors": "replace",
   "model_max_length": 77,
-  "pad_token": "<|endoftext|>",
+  "pad_token": "!",
   "tokenizer_class": "CLIPTokenizer",
   "unk_token": {
     "__type": "AddedToken",

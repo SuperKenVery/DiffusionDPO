@@ -36,7 +36,7 @@ def benchmark(
     ds_samples: Optional[int] = 100,
     batch_size: Optional[int] = 8,
 ):
-    ds = load_dataset(dataset)[ds_split].select(range(ds_samples))
+    ds = load_dataset(dataset)[ds_split].shuffle().select(range(ds_samples))
     scores = {}
     for model in models:
         scores[model] = benchmark_one_model(model, ds, batch_size)

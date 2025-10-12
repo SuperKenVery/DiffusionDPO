@@ -1,7 +1,7 @@
 {
   "_class_name": "UNet2DConditionModel",
   "_diffusers_version": "0.20.0",
-  "_name_or_path": "trainings/reproduce-3-rev-accuracy/checkpoint-115",
+  "_name_or_path": "trainings/reproduce-5-sdxl/checkpoint-2400",
   "act_fn": "silu",
   "addition_embed_type": "text_time",
   "addition_embed_type_num_heads": 64,
@@ -30,7 +30,6 @@
     "CrossAttnDownBlock2D"
   ],
   "downsample_padding": 1,
-  "dropout": 0.0,
   "dual_cross_attention": false,
   "encoder_hid_dim": null,
   "encoder_hid_dim_type": null,
@@ -51,8 +50,7 @@
   "resnet_out_scale_factor": 1.0,
   "resnet_skip_time_act": false,
   "resnet_time_scale_shift": "default",
-  "reverse_transformer_layers_per_block": null,
-  "sample_size": 64,
+  "sample_size": 128,
   "time_cond_proj_dim": null,
   "time_embedding_act_fn": null,
   "time_embedding_dim": null,

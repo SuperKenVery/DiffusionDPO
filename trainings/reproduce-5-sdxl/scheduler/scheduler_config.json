@@ -1,5 +1,5 @@
 {
-  "_class_name": "EulerAncestralDiscreteScheduler",
+  "_class_name": "EulerDiscreteScheduler",
   "_diffusers_version": "0.20.0",
   "beta_end": 0.012,
   "beta_schedule": "scaled_linear",
@@ -12,6 +12,7 @@
   "set_alpha_to_one": false,
   "skip_prk_steps": true,
   "steps_offset": 1,
-  "timestep_spacing": "trailing",
-  "trained_betas": null
+  "timestep_spacing": "leading",
+  "trained_betas": null,
+  "use_karras_sigmas": false
 }
