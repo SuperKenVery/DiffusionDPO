@@ -1185,6 +1185,12 @@ def main():
                         logger.info(f"Saved state to {save_path}")
                         logger.info("Pretty sure saving/loading is fixed but proceed cautiously")
 
+                        delete_step = global_step - args.checkpointing_steps
+                        delete_path = os.path.join(args.output_dir, f"checkpoint-{delete_step}")
+                        if os.path.exists(delete_path):
+                            logger.info(f"Deleting old checkpoint {delete_path}")
+                            shutil.rmtree(delete_path)
+
             logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             if args.train_method == 'dpo':
                 logs["implicit_acc"] = avg_acc
