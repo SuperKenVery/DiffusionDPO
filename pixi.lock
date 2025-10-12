@@ -43,14 +43,14 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/65/1a/7425c952944a6521a9cfa7e675343f83fd82085b8af2b1373a2409c683dc/charset_normalizer-3.4.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/db/d3/9dcc0f5797f070ec8edf30fbadfb200e71d9db6b84d211e3b2085a7589a0/click-8.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3d/b4/41ecb1516f1ba728f39ee7062b9dac1352d39823f513bb6f9e8aeb86e26d/clint-0.5.1.tar.gz
-      - pypi: https://files.pythonhosted.org/packages/66/f8/38298237d18d4b6a8ee5dfe390e97bed5adb8e01ec6f9680c0ddf3066728/datasets-2.14.4-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/20/34/a08b0ee99715eaba118cbe19a71f7b5e2425c2718ef96007c325944a1152/datasets-3.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d3/f0/218ee7e36ecfa9ae5ff32a12a1f8ab52def299937bf4ef069bad6c6e79d7/diffusers-0.35.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f5/3a/74a29b11cf2cdfcd6ba89c0cecd70b37cd1ba7b77978ce611eb7a146a832/dill-0.3.7-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/87/62/9773de14fe6c45c23649e98b83231fffd7b9892b6cf863251dc2afa73643/einops-0.8.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/f4/c6e662dade71f56cd2f3735141b265c3c79293c109549c1e6933b0651ffc/exceptiongroup-1.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/76/91/7216b27286936c16f5b4d0c530087e4a54eead683e6b0b73dd0c64844af6/filelock-3.20.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5d/ed/c7895fd2fde7f3ee70d248175f9b6cdf792fb741ab92dc59cd9ef3bd241b/frozenlist-1.8.0-cp310-cp310-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/47/71/70db47e4f6ce3e5c37a607355f80da8860a33226be640226ac52cb05ef2e/fsspec-2025.9.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/56/53/eb690efa8513166adef3e0669afd31e95ffde69fb3c52ec2ac7223ed6018/fsspec-2025.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ab/6e/81d47999aebc1b155f81eca4477a616a70f238a2549848c38983f3c22a82/ftfy-6.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a5/45/b04407e44050781821c84f26df71b3f7bc469923f92f9f8bc27f1406dbcc/grpcio-1.75.1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/15/07/86397573efefff941e100367bbda0b21496ffcdb34db7ab51912994c32a2/hf_xet-1.1.10-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -351,122 +351,150 @@ packages:
   sha256: 05224c32b1075563d0b16d0015faaf9da43aa214e4a2140e51f08789e7a4c5aa
   requires_dist:
   - args
-- pypi: https://files.pythonhosted.org/packages/66/f8/38298237d18d4b6a8ee5dfe390e97bed5adb8e01ec6f9680c0ddf3066728/datasets-2.14.4-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/20/34/a08b0ee99715eaba118cbe19a71f7b5e2425c2718ef96007c325944a1152/datasets-3.6.0-py3-none-any.whl
   name: datasets
-  version: 2.14.4
-  sha256: 29336bd316a7d827ccd4da2236596279b20ca2ac78f64c04c9483da7cbc2459b
+  version: 3.6.0
+  sha256: 25000c4a2c0873a710df127d08a202a06eab7bf42441a6bc278b499c2f72cd1b
   requires_dist:
+  - filelock
   - numpy>=1.17
-  - pyarrow>=8.0.0
-  - dill>=0.3.0,<0.3.8
+  - pyarrow>=15.0.0
+  - dill>=0.3.0,<0.3.9
   - pandas
-  - requests>=2.19.0
-  - tqdm>=4.62.1
+  - requests>=2.32.2
+  - tqdm>=4.66.3
   - xxhash
-  - multiprocess
-  - fsspec[http]>=2021.11.1
-  - aiohttp
-  - huggingface-hub>=0.14.0,<1.0.0
+  - multiprocess<0.70.17
+  - fsspec[http]>=2023.1.0,<=2025.3.0
+  - huggingface-hub>=0.24.0
   - packaging
   - pyyaml>=5.1
-  - apache-beam>=2.26.0,<2.44.0 ; extra == 'apache-beam'
   - soundfile>=0.12.1 ; extra == 'audio'
   - librosa ; extra == 'audio'
-  - tensorflow==2.12.0 ; extra == 'benchmarks'
-  - torch==2.0.1 ; extra == 'benchmarks'
-  - transformers==4.30.1 ; extra == 'benchmarks'
+  - soxr>=0.4.0 ; extra == 'audio'
+  - pillow>=9.4.0 ; extra == 'vision'
+  - tensorflow>=2.6.0 ; extra == 'tensorflow'
+  - tensorflow>=2.6.0 ; extra == 'tensorflow-gpu'
+  - torch ; extra == 'torch'
+  - jax>=0.3.14 ; extra == 'jax'
+  - jaxlib>=0.3.14 ; extra == 'jax'
+  - s3fs ; extra == 's3'
   - absl-py ; extra == 'dev'
+  - decorator ; extra == 'dev'
   - joblib<1.3.0 ; extra == 'dev'
   - joblibspark ; extra == 'dev'
   - pytest ; extra == 'dev'
   - pytest-datadir ; extra == 'dev'
   - pytest-xdist ; extra == 'dev'
-  - elasticsearch<8.0.0 ; extra == 'dev'
-  - faiss-cpu>=1.6.4 ; extra == 'dev'
+  - aiohttp ; extra == 'dev'
+  - elasticsearch>=7.17.12,<8.0.0 ; extra == 'dev'
+  - faiss-cpu>=1.8.0.post1 ; extra == 'dev'
+  - jax>=0.3.14 ; sys_platform != 'win32' and extra == 'dev'
+  - jaxlib>=0.3.14 ; sys_platform != 'win32' and extra == 'dev'
   - lz4 ; extra == 'dev'
+  - moto[server] ; extra == 'dev'
   - pyspark>=3.4 ; extra == 'dev'
   - py7zr ; extra == 'dev'
   - rarfile>=4.0 ; extra == 'dev'
-  - sqlalchemy<2.0.0 ; extra == 'dev'
+  - sqlalchemy ; extra == 'dev'
   - s3fs>=2021.11.1 ; extra == 'dev'
+  - protobuf<4.0.0 ; extra == 'dev'
+  - tensorflow>=2.6.0 ; python_full_version < '3.10' and extra == 'dev'
+  - tensorflow>=2.16.0 ; python_full_version >= '3.10' and extra == 'dev'
   - tiktoken ; extra == 'dev'
-  - torch ; extra == 'dev'
+  - torch>=2.0.0 ; extra == 'dev'
+  - torchdata ; extra == 'dev'
   - soundfile>=0.12.1 ; extra == 'dev'
-  - transformers ; extra == 'dev'
+  - transformers>=4.42.0 ; extra == 'dev'
   - zstandard ; extra == 'dev'
-  - pillow>=6.2.1 ; extra == 'dev'
+  - polars[timezone]>=0.20.0 ; extra == 'dev'
+  - torchvision ; extra == 'dev'
+  - pyav ; extra == 'dev'
+  - pillow>=9.4.0 ; extra == 'dev'
+  - soundfile>=0.12.1 ; extra == 'dev'
   - librosa ; extra == 'dev'
-  - black~=23.1 ; extra == 'dev'
-  - ruff>=0.0.241 ; extra == 'dev'
-  - pyyaml>=5.3.1 ; extra == 'dev'
+  - soxr>=0.4.0 ; extra == 'dev'
+  - ruff>=0.3.0 ; extra == 'dev'
   - s3fs ; extra == 'dev'
-  - apache-beam>=2.26.0,<2.44.0 ; python_full_version < '3.10' and extra == 'dev'
-  - tensorflow>=2.3,!=2.6.0,!=2.6.1 ; (platform_machine != 'arm64' and extra == 'dev') or (sys_platform != 'darwin' and extra == 'dev')
-  - tensorflow>=2.2.0,!=2.6.0,!=2.6.1 ; (platform_machine != 'arm64' and extra == 'dev') or (sys_platform != 'darwin' and extra == 'dev')
-  - tensorflow-macos ; platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'dev'
-  - s3fs ; extra == 'docs'
-  - transformers ; extra == 'docs'
-  - torch ; extra == 'docs'
-  - tensorflow>=2.2.0,!=2.6.0,!=2.6.1 ; (platform_machine != 'arm64' and extra == 'docs') or (sys_platform != 'darwin' and extra == 'docs')
-  - tensorflow-macos ; platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'docs'
-  - jax>=0.2.8,!=0.3.2,<=0.3.25 ; extra == 'jax'
-  - jaxlib>=0.1.65,<=0.3.25 ; extra == 'jax'
-  - accelerate ; extra == 'metrics-tests'
-  - bert-score>=0.3.6 ; extra == 'metrics-tests'
-  - jiwer ; extra == 'metrics-tests'
-  - langdetect ; extra == 'metrics-tests'
-  - mauve-text ; extra == 'metrics-tests'
-  - nltk ; extra == 'metrics-tests'
-  - rouge-score ; extra == 'metrics-tests'
-  - sacrebleu ; extra == 'metrics-tests'
-  - sacremoses ; extra == 'metrics-tests'
-  - scikit-learn ; extra == 'metrics-tests'
-  - scipy ; extra == 'metrics-tests'
-  - sentencepiece ; extra == 'metrics-tests'
-  - seqeval ; extra == 'metrics-tests'
-  - spacy>=3.0.0 ; extra == 'metrics-tests'
-  - tldextract ; extra == 'metrics-tests'
-  - toml>=0.10.1 ; extra == 'metrics-tests'
-  - typer<0.5.0 ; extra == 'metrics-tests'
-  - requests-file>=1.5.1 ; extra == 'metrics-tests'
-  - tldextract>=3.1.0 ; extra == 'metrics-tests'
-  - texttable>=1.6.3 ; extra == 'metrics-tests'
-  - werkzeug>=1.0.1 ; extra == 'metrics-tests'
-  - six~=1.15.0 ; extra == 'metrics-tests'
-  - black~=23.1 ; extra == 'quality'
-  - ruff>=0.0.241 ; extra == 'quality'
-  - pyyaml>=5.3.1 ; extra == 'quality'
-  - s3fs ; extra == 's3'
-  - tensorflow>=2.2.0,!=2.6.0,!=2.6.1 ; (platform_machine != 'arm64' and extra == 'tensorflow') or (sys_platform != 'darwin' and extra == 'tensorflow')
-  - tensorflow-macos ; platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'tensorflow'
-  - tensorflow-gpu>=2.2.0,!=2.6.0,!=2.6.1 ; extra == 'tensorflow-gpu'
+  - transformers ; extra == 'dev'
+  - torch ; extra == 'dev'
+  - tensorflow>=2.6.0 ; extra == 'dev'
   - absl-py ; extra == 'tests'
+  - decorator ; extra == 'tests'
   - joblib<1.3.0 ; extra == 'tests'
   - joblibspark ; extra == 'tests'
   - pytest ; extra == 'tests'
   - pytest-datadir ; extra == 'tests'
   - pytest-xdist ; extra == 'tests'
-  - elasticsearch<8.0.0 ; extra == 'tests'
-  - faiss-cpu>=1.6.4 ; extra == 'tests'
+  - aiohttp ; extra == 'tests'
+  - elasticsearch>=7.17.12,<8.0.0 ; extra == 'tests'
+  - faiss-cpu>=1.8.0.post1 ; extra == 'tests'
+  - jax>=0.3.14 ; sys_platform != 'win32' and extra == 'tests'
+  - jaxlib>=0.3.14 ; sys_platform != 'win32' and extra == 'tests'
   - lz4 ; extra == 'tests'
+  - moto[server] ; extra == 'tests'
   - pyspark>=3.4 ; extra == 'tests'
   - py7zr ; extra == 'tests'
   - rarfile>=4.0 ; extra == 'tests'
-  - sqlalchemy<2.0.0 ; extra == 'tests'
+  - sqlalchemy ; extra == 'tests'
   - s3fs>=2021.11.1 ; extra == 'tests'
+  - protobuf<4.0.0 ; extra == 'tests'
+  - tensorflow>=2.6.0 ; python_full_version < '3.10' and extra == 'tests'
+  - tensorflow>=2.16.0 ; python_full_version >= '3.10' and extra == 'tests'
   - tiktoken ; extra == 'tests'
-  - torch ; extra == 'tests'
+  - torch>=2.0.0 ; extra == 'tests'
+  - torchdata ; extra == 'tests'
   - soundfile>=0.12.1 ; extra == 'tests'
-  - transformers ; extra == 'tests'
+  - transformers>=4.42.0 ; extra == 'tests'
   - zstandard ; extra == 'tests'
-  - pillow>=6.2.1 ; extra == 'tests'
+  - polars[timezone]>=0.20.0 ; extra == 'tests'
+  - torchvision ; extra == 'tests'
+  - pyav ; extra == 'tests'
+  - pillow>=9.4.0 ; extra == 'tests'
+  - soundfile>=0.12.1 ; extra == 'tests'
   - librosa ; extra == 'tests'
-  - apache-beam>=2.26.0,<2.44.0 ; python_full_version < '3.10' and extra == 'tests'
-  - tensorflow>=2.3,!=2.6.0,!=2.6.1 ; (platform_machine != 'arm64' and extra == 'tests') or (sys_platform != 'darwin' and extra == 'tests')
-  - tensorflow-macos ; platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'tests'
-  - torch ; extra == 'torch'
-  - pillow>=6.2.1 ; extra == 'vision'
-  requires_python: '>=3.8.0'
+  - soxr>=0.4.0 ; extra == 'tests'
+  - absl-py ; extra == 'tests-numpy2'
+  - decorator ; extra == 'tests-numpy2'
+  - joblib<1.3.0 ; extra == 'tests-numpy2'
+  - joblibspark ; extra == 'tests-numpy2'
+  - pytest ; extra == 'tests-numpy2'
+  - pytest-datadir ; extra == 'tests-numpy2'
+  - pytest-xdist ; extra == 'tests-numpy2'
+  - aiohttp ; extra == 'tests-numpy2'
+  - elasticsearch>=7.17.12,<8.0.0 ; extra == 'tests-numpy2'
+  - jax>=0.3.14 ; sys_platform != 'win32' and extra == 'tests-numpy2'
+  - jaxlib>=0.3.14 ; sys_platform != 'win32' and extra == 'tests-numpy2'
+  - lz4 ; extra == 'tests-numpy2'
+  - moto[server] ; extra == 'tests-numpy2'
+  - pyspark>=3.4 ; extra == 'tests-numpy2'
+  - py7zr ; extra == 'tests-numpy2'
+  - rarfile>=4.0 ; extra == 'tests-numpy2'
+  - sqlalchemy ; extra == 'tests-numpy2'
+  - s3fs>=2021.11.1 ; extra == 'tests-numpy2'
+  - protobuf<4.0.0 ; extra == 'tests-numpy2'
+  - tiktoken ; extra == 'tests-numpy2'
+  - torch>=2.0.0 ; extra == 'tests-numpy2'
+  - torchdata ; extra == 'tests-numpy2'
+  - soundfile>=0.12.1 ; extra == 'tests-numpy2'
+  - transformers>=4.42.0 ; extra == 'tests-numpy2'
+  - zstandard ; extra == 'tests-numpy2'
+  - polars[timezone]>=0.20.0 ; extra == 'tests-numpy2'
+  - torchvision ; extra == 'tests-numpy2'
+  - pyav ; extra == 'tests-numpy2'
+  - pillow>=9.4.0 ; extra == 'tests-numpy2'
+  - soundfile>=0.12.1 ; extra == 'tests-numpy2'
+  - soxr>=0.4.0 ; extra == 'tests-numpy2'
+  - ruff>=0.3.0 ; extra == 'quality'
+  - tensorflow==2.12.0 ; extra == 'benchmarks'
+  - torch==2.0.1 ; extra == 'benchmarks'
+  - transformers==4.30.1 ; extra == 'benchmarks'
+  - s3fs ; extra == 'docs'
+  - transformers ; extra == 'docs'
+  - torch ; extra == 'docs'
+  - tensorflow>=2.6.0 ; extra == 'docs'
+  - pdfplumber>=0.11.4 ; extra == 'pdfs'
+  requires_python: '>=3.9.0'
 - pypi: https://files.pythonhosted.org/packages/d3/f0/218ee7e36ecfa9ae5ff32a12a1f8ab52def299937bf4ef069bad6c6e79d7/diffusers-0.35.0-py3-none-any.whl
   name: diffusers
   version: 0.35.0
@@ -589,10 +617,10 @@ packages:
   version: 1.8.0
   sha256: f57fb59d9f385710aa7060e89410aeb5058b99e62f4d16b08b91986b9a2140c2
   requires_python: '>=3.9'
-- pypi: https://files.pythonhosted.org/packages/47/71/70db47e4f6ce3e5c37a607355f80da8860a33226be640226ac52cb05ef2e/fsspec-2025.9.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/56/53/eb690efa8513166adef3e0669afd31e95ffde69fb3c52ec2ac7223ed6018/fsspec-2025.3.0-py3-none-any.whl
   name: fsspec
-  version: 2025.9.0
-  sha256: 530dc2a2af60a414a832059574df4a6e10cce927f6f4a78209390fe38955cfb7
+  version: 2025.3.0
+  sha256: efb87af3efa9103f94ca91a7f8cb7a4df91af9f74fc106c9c7ea0efd7277c1b3
   requires_dist:
   - adlfs ; extra == 'abfs'
   - adlfs ; extra == 'adl'
@@ -600,7 +628,7 @@ packages:
   - dask ; extra == 'dask'
   - distributed ; extra == 'dask'
   - pre-commit ; extra == 'dev'
-  - ruff>=0.5 ; extra == 'dev'
+  - ruff ; extra == 'dev'
   - numpydoc ; extra == 'doc'
   - sphinx ; extra == 'doc'
   - sphinx-design ; extra == 'doc'
@@ -693,9 +721,9 @@ packages:
   - tqdm ; extra == 'test-full'
   - urllib3 ; extra == 'test-full'
   - zarr ; extra == 'test-full'
-  - zstandard ; python_full_version < '3.14' and extra == 'test-full'
+  - zstandard ; extra == 'test-full'
   - tqdm ; extra == 'tqdm'
-  requires_python: '>=3.9'
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/ab/6e/81d47999aebc1b155f81eca4477a616a70f238a2549848c38983f3c22a82/ftfy-6.3.1-py3-none-any.whl
   name: ftfy
   version: 6.3.1
