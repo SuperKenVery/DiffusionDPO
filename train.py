@@ -776,7 +776,7 @@ def main():
     #### START PREPROCESSING/COLLATION ####
     if args.train_method == 'dpo':
         print("Ignoring image_column variable, reading from jpg_0 and jpg_1")
-        def preprocess_train(examples):
+        def preprocess_train_hpd(examples):
             combined_pixel_values = []
             for sample in iter_dict_batch(examples):
                 if sample['human_preference'][0]==0:
@@ -790,6 +790,25 @@ def main():
                 combined_pixel_values.append(combined_pixel_value)
 
             examples['pixel_values'] = combined_pixel_values
+            if not args.sdxl: examples["input_ids"] = tokenize_captions(examples)
+            return examples
+        def preprocess_train(examples):
+            all_pixel_values = []
+            for col_name in ['jpg_0', 'jpg_1']:
+                images = [Image.open(io.BytesIO(im_bytes)).convert("RGB")
+                            for im_bytes in examples[col_name]]
+                pixel_values = [train_transforms(image) for image in images]
+                all_pixel_values.append(pixel_values)
+            # Double on channel dim, jpg_y then jpg_w
+            im_tup_iterator = zip(*all_pixel_values)
+            combined_pixel_values = []
+            for im_tup, label_0 in zip(im_tup_iterator, examples['label_0']):
+                if label_0==0 and (not args.choice_model): # don't want to flip things if using choice_model for AI feedback
+                    im_tup = im_tup[::-1]
+                combined_im = torch.cat(im_tup, dim=0) # no batch dim
+                combined_pixel_values.append(combined_im)
+            examples["pixel_values"] = combined_pixel_values
+            # SDXL takes raw prompts
             if not args.sdxl: examples["input_ids"] = tokenize_captions(examples)
             return examples
 
@@ -891,12 +910,12 @@ def main():
         if args.train_method=="dpo" and (args.alpha_control or args.filter_bad_pairs):
             from get_image_rewards.utils import get_reward_ds_path
             preference_data = load_from_disk(get_reward_ds_path(args.dataset_name))
-            assert train_dataset[0]['prompt']==preference_data[0]['prompt']
+            assert train_dataset[0][args.caption_column]==preference_data[0]['prompt']
             preference_data = preference_data.select_columns(["chosen_score", "rejected_score"])
-            train_dataset = concatenate_datasets([train_dataset, preference_data], axis=1).filter(lambda sample: sample['chosen_score']>sample['rejected_score'])
+            train_dataset = concatenate_datasets([train_dataset, preference_data], axis=1)
+            if args.filter_bad_pairs:
+                train_dataset = train_dataset.filter(lambda sample: sample['chosen_score']>sample['rejected_score'])
         train_dataset = train_dataset.with_transform(preprocess_train)
-        # train_dataset = dataset[args.split].map(map_train, with_indices=True)
-        # train_dataset.set_format(type="torch", columns=["pixel_values"], output_all_columns=True)
 
     # DataLoaders creation:
     train_dataloader = torch.utils.data.DataLoader(
@@ -945,15 +964,15 @@ def main():
     if args.sdxl:
         text_encoder_one.to(accelerator.device, dtype=weight_dtype)
         text_encoder_two.to(accelerator.device, dtype=weight_dtype)
-        print("offload vae (this actually stays as CPU)")
-        vae = accelerate.cpu_offload(vae)
-        print("Offloading text encoders to cpu")
-        text_encoder_one = accelerate.cpu_offload(text_encoder_one)
-        text_encoder_two = accelerate.cpu_offload(text_encoder_two)
+        # print("offload vae (this actually stays as CPU)")
+        # vae = accelerate.cpu_offload(vae)
+        # print("Offloading text encoders to cpu")
+        # text_encoder_one = accelerate.cpu_offload(text_encoder_one)
+        # text_encoder_two = accelerate.cpu_offload(text_encoder_two)
         if args.train_method == 'dpo':
             ref_unet.to(accelerator.device, dtype=weight_dtype)
-            print("offload ref_unet")
-            ref_unet = accelerate.cpu_offload(ref_unet)
+            # print("offload ref_unet")
+            # ref_unet = accelerate.cpu_offload(ref_unet)
     else:
         text_encoder.to(accelerator.device, dtype=weight_dtype)
         if args.train_method == 'dpo':

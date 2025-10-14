@@ -1,6 +1,6 @@
 import typer
 from typing import List, Union, Optional
-from .gen_reward_value import get_reward_ds_path
+from .utils import get_reward_ds_path
 from datasets import load_dataset, load_from_disk
 from tqdm import tqdm
 
